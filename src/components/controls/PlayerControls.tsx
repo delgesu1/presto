@@ -8,8 +8,28 @@ interface PlayerControlsProps {
 }
 
 export const PlayerControls: React.FC<PlayerControlsProps> = ({ disabled = false }) => {
-    const { isPlaying, play, pause, seek, currentIndex, settings } = useReaderStore();
+    const { isPlaying, play, pause, seek, currentIndex, tokens, settings } = useReaderStore();
     const chunkSize = settings.chunkSize;
+
+    // Calculate current WPM based on training mode progress
+    const getCurrentWpm = () => {
+        if (!settings.trainingModeEnabled || tokens.length <= 1) {
+            return settings.wpm;
+        }
+        const rawStartWpm = settings.trainingStartWpm ?? settings.wpm;
+        const rawEndWpm = settings.trainingEndWpm ?? settings.wpm;
+        const startWpm = Math.min(rawStartWpm, rawEndWpm);
+        const endWpm = Math.max(rawStartWpm, rawEndWpm);
+        const rampEndIndex = Math.max(1, Math.floor((tokens.length - 1) * 0.8));
+
+        if (currentIndex <= rampEndIndex) {
+            const progress = currentIndex / rampEndIndex;
+            return Math.round(startWpm + (endWpm - startWpm) * progress);
+        }
+        return endWpm;
+    };
+
+    const currentWpm = getCurrentWpm();
 
     const togglePlay = () => isPlaying ? pause() : play();
 
@@ -63,6 +83,9 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({ disabled = false
                 >
                     <SkipForward size={16} strokeWidth={1.5} />
                 </button>
+                <span className="player-wpm-indicator">
+                    {currentWpm}<span className="player-wpm-unit">wpm</span>
+                </span>
             </div>
         </div>
     );

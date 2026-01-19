@@ -2,8 +2,14 @@
 
 import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { useReaderStore } from '@/store/useReaderStore';
+import type { MusicType } from '@/lib/engine/types';
 
-const JAZZ_STREAM_URL = 'https://jazzfm91.streamb.live/SB00023';
+const MUSIC_STREAMS: Record<Exclude<MusicType, 'none'>, string> = {
+    jazz: 'https://jazzfm91.streamb.live/SB00023',
+    baroque: 'http://strm112.1.fm/baroque_mobile_mp3',
+};
+
+const CROSSFADE_DURATION = 500; // ms
 
 export const SettingsPanel: React.FC = () => {
     const { settings, setSettings } = useReaderStore();
@@ -11,7 +17,9 @@ export const SettingsPanel: React.FC = () => {
     const wpmRef = useRef<HTMLInputElement>(null);
     const fontSizeRef = useRef<HTMLInputElement>(null);
     const pauseRef = useRef<HTMLInputElement>(null);
-    const audioRef = useRef<HTMLAudioElement>(null);
+    const jazzAudioRef = useRef<HTMLAudioElement>(null);
+    const baroqueAudioRef = useRef<HTMLAudioElement>(null);
+    const fadeIntervalRef = useRef<number | null>(null);
 
     const WPM_MIN = 100;
     const WPM_MAX = 1500;
@@ -77,24 +85,105 @@ export const SettingsPanel: React.FC = () => {
         updateSliderFill(pauseRef.current);
     }, [settings.wpm, settings.fontSize, settings.punctuationSlowdown, settings.trainingModeEnabled]);
 
+    // Crossfade helper function
+    const crossfade = useCallback((
+        fadeOut: HTMLAudioElement | null,
+        fadeIn: HTMLAudioElement | null,
+        onComplete?: () => void
+    ) => {
+        // Clear any existing fade interval
+        if (fadeIntervalRef.current) {
+            clearInterval(fadeIntervalRef.current);
+            fadeIntervalRef.current = null;
+        }
+
+        const steps = 20;
+        const stepDuration = CROSSFADE_DURATION / steps;
+        let step = 0;
+
+        // Set initial volumes
+        if (fadeIn) {
+            fadeIn.volume = 0;
+            fadeIn.play().catch(() => {
+                setSettings({ musicType: 'none' });
+            });
+        }
+
+        fadeIntervalRef.current = window.setInterval(() => {
+            step++;
+            const progress = step / steps;
+
+            if (fadeOut) {
+                fadeOut.volume = Math.max(0, 1 - progress);
+            }
+            if (fadeIn) {
+                fadeIn.volume = Math.min(1, progress);
+            }
+
+            if (step >= steps) {
+                if (fadeIntervalRef.current) {
+                    clearInterval(fadeIntervalRef.current);
+                    fadeIntervalRef.current = null;
+                }
+                if (fadeOut) {
+                    fadeOut.pause();
+                    fadeOut.volume = 1;
+                }
+                onComplete?.();
+            }
+        }, stepDuration);
+    }, [setSettings]);
+
     // Handle music playback based on settings
     useEffect(() => {
-        const audio = audioRef.current;
-        if (!audio) return;
+        const jazzAudio = jazzAudioRef.current;
+        const baroqueAudio = baroqueAudioRef.current;
 
-        if (settings.musicEnabled) {
-            audio.play().catch(() => {
-                // Autoplay was prevented, user needs to interact first
-                setSettings({ musicEnabled: false });
-            });
-        } else {
-            audio.pause();
+        if (settings.musicType === 'none') {
+            // Fade out whichever is playing
+            if (jazzAudio && !jazzAudio.paused) {
+                crossfade(jazzAudio, null);
+            }
+            if (baroqueAudio && !baroqueAudio.paused) {
+                crossfade(baroqueAudio, null);
+            }
+        } else if (settings.musicType === 'jazz') {
+            if (baroqueAudio && !baroqueAudio.paused) {
+                // Crossfade from baroque to jazz
+                crossfade(baroqueAudio, jazzAudio);
+            } else if (jazzAudio?.paused) {
+                // Just start jazz
+                jazzAudio.volume = 1;
+                jazzAudio.play().catch(() => {
+                    setSettings({ musicType: 'none' });
+                });
+            }
+        } else if (settings.musicType === 'baroque') {
+            if (jazzAudio && !jazzAudio.paused) {
+                // Crossfade from jazz to baroque
+                crossfade(jazzAudio, baroqueAudio);
+            } else if (baroqueAudio?.paused) {
+                // Just start baroque
+                baroqueAudio.volume = 1;
+                baroqueAudio.play().catch(() => {
+                    setSettings({ musicType: 'none' });
+                });
+            }
         }
-    }, [settings.musicEnabled, setSettings]);
+    }, [settings.musicType, crossfade, setSettings]);
 
-    const handleMusicToggle = useCallback(() => {
-        setSettings({ musicEnabled: !settings.musicEnabled });
-    }, [settings.musicEnabled, setSettings]);
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            if (fadeIntervalRef.current) {
+                clearInterval(fadeIntervalRef.current);
+            }
+        };
+    }, []);
+
+    const handleMusicChange = useCallback((type: MusicType) => {
+        setSettings({ musicType: type });
+    }, [setSettings]);
 
     const handleTrainingToggle = useCallback(() => {
         setSettings({ trainingModeEnabled: !settings.trainingModeEnabled });
@@ -384,17 +473,29 @@ export const SettingsPanel: React.FC = () => {
                     </button>
                 </div>
 
-                {/* Jazz */}
+                {/* Music */}
                 <div className="settings-row-inline">
-                    <span className="settings-label">Jazz</span>
-                    <button
-                        onClick={handleMusicToggle}
-                        className={`settings-toggle ${settings.musicEnabled ? 'settings-toggle-on' : ''}`}
-                        role="switch"
-                        aria-checked={settings.musicEnabled}
-                    >
-                        <span className="settings-toggle-thumb" />
-                    </button>
+                    <span className="settings-label">Music</span>
+                    <div className="settings-chip-group">
+                        <button
+                            onClick={() => handleMusicChange('none')}
+                            className={`settings-chip ${settings.musicType === 'none' ? 'settings-chip-active' : ''}`}
+                        >
+                            Off
+                        </button>
+                        <button
+                            onClick={() => handleMusicChange('jazz')}
+                            className={`settings-chip ${settings.musicType === 'jazz' ? 'settings-chip-active' : ''}`}
+                        >
+                            Jazz
+                        </button>
+                        <button
+                            onClick={() => handleMusicChange('baroque')}
+                            className={`settings-chip ${settings.musicType === 'baroque' ? 'settings-chip-active' : ''}`}
+                        >
+                            Baroque
+                        </button>
+                    </div>
                 </div>
 
                 {/* Theme */}
@@ -430,8 +531,9 @@ export const SettingsPanel: React.FC = () => {
                 </div>
             </div>
 
-            {/* Hidden audio element for background music */}
-            <audio ref={audioRef} src={JAZZ_STREAM_URL} />
+            {/* Hidden audio elements for background music */}
+            <audio ref={jazzAudioRef} src={MUSIC_STREAMS.jazz} />
+            <audio ref={baroqueAudioRef} src={MUSIC_STREAMS.baroque} />
         </div>
     );
 };

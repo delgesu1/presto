@@ -10,6 +10,8 @@ export interface Token {
     matches?: string[]; // If we decide to keep the breakdown (prefix, pivot, suffix)
 }
 
+export type MusicType = 'none' | 'jazz' | 'baroque';
+
 export interface ReadingSettings {
     wpm: number;
     trainingModeEnabled: boolean;
@@ -20,6 +22,6 @@ export interface ReadingSettings {
     orpEnabled: boolean;
     punctuationSlowdown: number; // extra ms per punctuation
     serifFont: boolean;
-    musicEnabled: boolean;
+    musicType: MusicType;
     theme: string;
 }

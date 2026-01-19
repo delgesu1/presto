@@ -7,15 +7,15 @@ import { demoTexts } from '@/lib/demoTexts';
 
 const DEFAULT_SETTINGS: ReadingSettings = {
     wpm: 300,
-    trainingModeEnabled: false,
-    trainingStartWpm: 300,
-    trainingEndWpm: 600,
+    trainingModeEnabled: true,
+    trainingStartWpm: 150,
+    trainingEndWpm: 1000,
     fontSize: 2, // rem
     chunkSize: 1,
     orpEnabled: true,
     punctuationSlowdown: 100, // ms
     serifFont: true,
-    musicEnabled: false,
+    musicType: 'none',
     theme: 'light',
 };
 const DEFAULT_TEXT = demoTexts[0];

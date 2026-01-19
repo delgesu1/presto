@@ -170,6 +170,65 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* ========== App Header ========== */
+
+.app-header {
+    max-width: 640px;
+    margin: 0 auto 2.5rem;
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.app-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    margin: 0;
+}
+
+.app-subtitle-separator {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--text-secondary);
+    opacity: 0.5;
+    flex-shrink: 0;
+}
+
+.app-subtitle {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* Desktop: larger, stacked layout */
+@media (min-width: 640px) {
+    .app-header {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.375rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .app-title {
+        font-size: 1.75rem;
+        letter-spacing: -0.02em;
+    }
+
+    .app-subtitle-separator {
+        display: none;
+    }
+
+    .app-subtitle {
+        font-size: 0.9375rem;
+    }
+}
+
 /* ========== Buttons ========== */
 
 .btn-primary {
@@ -261,6 +320,25 @@ body {
 
 .player-controls-side-right {
     justify-content: flex-start;
+}
+
+/* WPM indicator */
+.player-wpm-indicator {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    min-width: 3.5rem;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.7;
+    margin-left: 0.25rem;
+}
+
+.player-wpm-unit {
+    font-size: 0.625rem;
+    font-weight: 400;
+    margin-left: 0.125rem;
+    opacity: 0.8;
 }
 
 /* Player button */

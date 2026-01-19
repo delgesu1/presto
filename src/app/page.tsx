@@ -21,13 +21,10 @@ export default function Home() {
 
             <div className="relative z-10 px-6 py-12 sm:py-20">
                 {/* Header */}
-                <header className="max-w-[640px] mx-auto mb-10 text-center">
-                    <h1 className="text-[1.75rem] font-semibold text-[var(--text-primary)] tracking-[-0.02em]">
-                        Presto Reader
-                    </h1>
-                    <p className="mt-2 text-[0.9375rem] text-[var(--text-secondary)]">
-                        Science-backed speed reading
-                    </p>
+                <header className="app-header">
+                    <h1 className="app-title">Presto Reader</h1>
+                    <span className="app-subtitle-separator" aria-hidden="true" />
+                    <p className="app-subtitle">Science-backed speed reading</p>
                 </header>
 
                 {/* Reader Display */}
