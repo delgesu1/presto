@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useReaderStore } from '@/store/useReaderStore';
+import { demoTexts } from '@/lib/demoTexts';
 
 export const Importer: React.FC = () => {
     const { setRawText, rawText, reset, tokens } = useReaderStore();
@@ -35,8 +36,8 @@ export const Importer: React.FC = () => {
     };
 
     const loadDemo = () => {
-        const demoText = "Welcome to the RSVP Reader. This is a demonstration of Rapid Serial Visual Presentation. By displaying words one at a time at a fixed focal point, RSVP eliminates the need for eye movements, which accounts for the majority of reading time. This allows you to read significantly faster while maintaining comprehension. Try adjusting the speed in the settings below to find your perfect pace. You can paste any article, book excerpt, or notes into this reader and speed through them with focus and clarity.";
-        setInput(demoText);
+        const randomIndex = Math.floor(Math.random() * demoTexts.length);
+        setInput(demoTexts[randomIndex]);
     };
 
     const wordCount = input.trim() ? input.trim().split(/\s+/).length : 0;

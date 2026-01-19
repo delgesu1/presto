@@ -686,6 +686,62 @@ body {
     height: 8px;
 }
 
+.settings-range {
+    --range-start: 0%;
+    --range-end: 100%;
+    position: relative;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.settings-range-track {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 6px;
+    border-radius: 999px;
+    background: linear-gradient(
+        to right,
+        var(--surface-muted) 0%,
+        var(--surface-muted) var(--range-start),
+        var(--accent-primary) var(--range-start),
+        var(--accent-primary) var(--range-end),
+        var(--surface-muted) var(--range-end),
+        var(--surface-muted) 100%
+    );
+}
+
+.settings-range-input {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    background: transparent;
+}
+
+.settings-range-input-start {
+    z-index: 2;
+}
+
+.settings-range-input-end {
+    z-index: 3;
+}
+
+.settings-range-input::-webkit-slider-runnable-track {
+    background: transparent;
+}
+
+.settings-range-input::-moz-range-track {
+    background: transparent;
+}
+
+.settings-range-input::-moz-range-progress {
+    background: transparent;
+}
+
 .settings-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;

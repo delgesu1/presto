@@ -23,10 +23,10 @@ export default function Home() {
                 {/* Header */}
                 <header className="max-w-[640px] mx-auto mb-10 text-center">
                     <h1 className="text-[1.75rem] font-semibold text-[var(--text-primary)] tracking-[-0.02em]">
-                        RSVP Reader
+                        Presto Reader
                     </h1>
                     <p className="mt-2 text-[0.9375rem] text-[var(--text-secondary)]">
-                        Speed reading with focus
+                        Science-backed speed reading
                     </p>
                 </header>
 

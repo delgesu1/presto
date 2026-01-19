@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-RSVP Reader is a speed reading web application using Rapid Serial Visual Presentation (RSVP) technique. Users paste text and read it word-by-word (or in chunks) at adjustable speeds with optional ORP (Optimal Recognition Point) highlighting.
+Presto Reader is a science-backed speed reading web application using Rapid Serial Visual Presentation (RSVP) technique. Users paste text and read it word-by-word (or in chunks) at adjustable speeds with optional ORP (Optimal Recognition Point) highlighting.
 
 ## Commands
 
@@ -30,8 +30,8 @@ User Input (Importer) → Zustand Store (setRawText) → Tokenizer → Scheduler
 ### State Management
 
 Zustand store (`src/store/useReaderStore.ts`) with localStorage persistence:
-- Persisted: `rawText`, `settings`
-- Runtime: `tokens`, `timings`, `isPlaying`, `currentIndex`
+- Persisted: `settings` (including theme)
+- Runtime: `rawText`, `tokens`, `timings`, `isPlaying`, `currentIndex`
 
 ### Component Structure
 

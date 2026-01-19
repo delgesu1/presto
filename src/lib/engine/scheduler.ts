@@ -5,10 +5,25 @@ export class Scheduler {
      * Calculates the duration (in ms) for each token based on settings.
      */
     static schedule(tokens: Token[], settings: ReadingSettings): number[] {
-        const baseDuration = 60000 / settings.wpm;
+        const trainingEnabled = settings.trainingModeEnabled && tokens.length > 1;
+        const rawStartWpm = settings.trainingStartWpm ?? settings.wpm;
+        const rawEndWpm = settings.trainingEndWpm ?? settings.wpm;
+        const startWpm = Math.min(rawStartWpm, rawEndWpm);
+        const endWpm = Math.max(rawStartWpm, rawEndWpm);
+        const rampEndIndex = Math.max(1, Math.floor((tokens.length - 1) * 0.8));
 
-        return tokens.map((token) => {
-            let duration = baseDuration;
+        const getWpmForIndex = (index: number) => {
+            if (!trainingEnabled) return settings.wpm;
+            if (index <= rampEndIndex) {
+                const progress = index / rampEndIndex;
+                return startWpm + (endWpm - startWpm) * progress;
+            }
+            return endWpm;
+        };
+
+        return tokens.map((token, index) => {
+            const wpm = Math.max(getWpmForIndex(index), 1);
+            let duration = 60000 / wpm;
 
             // 1. Punctuation slowdown
             if (token.type === 'punctuation' || /[.,!?;:]/.test(token.text)) {

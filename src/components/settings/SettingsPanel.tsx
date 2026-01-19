@@ -13,6 +13,16 @@ export const SettingsPanel: React.FC = () => {
     const pauseRef = useRef<HTMLInputElement>(null);
     const audioRef = useRef<HTMLAudioElement>(null);
 
+    const WPM_MIN = 100;
+    const WPM_MAX = 1500;
+    const WPM_STEP = 50;
+    const trainingStartWpm = settings.trainingStartWpm ?? settings.wpm;
+    const trainingEndWpm = settings.trainingEndWpm ?? settings.wpm;
+    const rangeStartWpm = Math.min(trainingStartWpm, trainingEndWpm);
+    const rangeEndWpm = Math.max(trainingStartWpm, trainingEndWpm);
+    const rangeStartPercent = ((rangeStartWpm - WPM_MIN) / (WPM_MAX - WPM_MIN)) * 100;
+    const rangeEndPercent = ((rangeEndWpm - WPM_MIN) / (WPM_MAX - WPM_MIN)) * 100;
+
     const themes = [
         { id: 'light', label: 'Light', bg: '#ffffff', text: '#1a1a2e', accent: '#3b82f6' },
         { id: 'dark', label: 'Dark', bg: '#1a1a24', text: '#f4f4f5', accent: '#60a5fa' },
@@ -47,7 +57,7 @@ export const SettingsPanel: React.FC = () => {
         updateSliderFill(wpmRef.current);
         updateSliderFill(fontSizeRef.current);
         updateSliderFill(pauseRef.current);
-    }, [settings.wpm, settings.fontSize, settings.punctuationSlowdown]);
+    }, [settings.wpm, settings.fontSize, settings.punctuationSlowdown, settings.trainingModeEnabled]);
 
     // Handle music playback based on settings
     useEffect(() => {
@@ -67,6 +77,10 @@ export const SettingsPanel: React.FC = () => {
     const handleMusicToggle = useCallback(() => {
         setSettings({ musicEnabled: !settings.musicEnabled });
     }, [settings.musicEnabled, setSettings]);
+
+    const handleTrainingToggle = useCallback(() => {
+        setSettings({ trainingModeEnabled: !settings.trainingModeEnabled });
+    }, [settings.trainingModeEnabled, setSettings]);
 
     const handleThemeChange = (themeId: string) => {
         setSettings({ theme: themeId });
@@ -94,23 +108,87 @@ export const SettingsPanel: React.FC = () => {
             <div className="settings-section">
                 <h3 className="settings-section-title">Reading</h3>
 
-                {/* Speed */}
-                <div className="settings-row">
-                    <div className="settings-row-header">
-                        <span className="settings-label">Speed</span>
-                        <span className="settings-value">{settings.wpm} <span className="settings-unit">WPM</span></span>
+                {/* Training Mode */}
+                <div className="settings-row-inline">
+                    <div className="settings-label-group">
+                        <span className="settings-label">Training Mode</span>
+                        <span className="settings-hint">Ramp speed to the target by 80% of the text</span>
                     </div>
-                    <input
-                        ref={wpmRef}
-                        type="range"
-                        min="100"
-                        max="1500"
-                        step="50"
-                        value={settings.wpm}
-                        onChange={(e) => handleSliderChange(e, (v) => setSettings({ wpm: v }))}
-                        className="settings-slider"
-                    />
+                    <button
+                        onClick={handleTrainingToggle}
+                        className={`settings-toggle ${settings.trainingModeEnabled ? 'settings-toggle-on' : ''}`}
+                        role="switch"
+                        aria-checked={settings.trainingModeEnabled}
+                    >
+                        <span className="settings-toggle-thumb" />
+                    </button>
                 </div>
+
+                {/* Speed */}
+                {!settings.trainingModeEnabled ? (
+                    <div className="settings-row">
+                        <div className="settings-row-header">
+                            <span className="settings-label">Speed</span>
+                            <span className="settings-value">{settings.wpm} <span className="settings-unit">WPM</span></span>
+                        </div>
+                        <input
+                            ref={wpmRef}
+                            type="range"
+                            min={WPM_MIN}
+                            max={WPM_MAX}
+                            step={WPM_STEP}
+                            value={settings.wpm}
+                            onChange={(e) => handleSliderChange(e, (v) => setSettings({ wpm: v }))}
+                            className="settings-slider"
+                        />
+                    </div>
+                ) : (
+                    <div className="settings-row">
+                        <div className="settings-row-header">
+                            <span className="settings-label">Training Speed</span>
+                            <span className="settings-value">
+                                {trainingStartWpm} to {trainingEndWpm} <span className="settings-unit">WPM</span>
+                            </span>
+                        </div>
+                        <div
+                            className="settings-range"
+                            style={{
+                                '--range-start': `${rangeStartPercent}%`,
+                                '--range-end': `${rangeEndPercent}%`,
+                            } as React.CSSProperties}
+                        >
+                            <div className="settings-range-track" />
+                            <input
+                                type="range"
+                                min={WPM_MIN}
+                                max={WPM_MAX}
+                                step={WPM_STEP}
+                                value={trainingStartWpm}
+                                onChange={(e) =>
+                                    handleSliderChange(e, (v) =>
+                                        setSettings({ trainingStartWpm: Math.min(v, trainingEndWpm) })
+                                    )
+                                }
+                                className="settings-slider settings-range-input settings-range-input-start"
+                                aria-label="Training start speed"
+                            />
+                            <input
+                                type="range"
+                                min={WPM_MIN}
+                                max={WPM_MAX}
+                                step={WPM_STEP}
+                                value={trainingEndWpm}
+                                onChange={(e) =>
+                                    handleSliderChange(e, (v) =>
+                                        setSettings({ trainingEndWpm: Math.max(v, trainingStartWpm) })
+                                    )
+                                }
+                                className="settings-slider settings-range-input settings-range-input-end"
+                                aria-label="Training end speed"
+                            />
+                        </div>
+                    </div>
+                )}
 
                 {/* Punctuation Pause */}
                 <div className="settings-row">

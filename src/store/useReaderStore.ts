@@ -37,6 +37,9 @@ export const useReaderStore = create<ReaderState>()(
             currentIndex: 0,
             settings: {
                 wpm: 300,
+                trainingModeEnabled: false,
+                trainingStartWpm: 300,
+                trainingEndWpm: 600,
                 fontSize: 2, // rem
                 chunkSize: 1,
                 orpEnabled: true,
@@ -92,6 +95,17 @@ export const useReaderStore = create<ReaderState>()(
             name: 'rsvp-reader-storage',
             storage: createJSONStorage(() => localStorage),
             partialize: (state) => ({ settings: state.settings }), // persist settings only, not text
+            merge: (persistedState, currentState) => {
+                const persisted = persistedState as Partial<typeof currentState>;
+                const merged = { ...currentState, ...persisted } as typeof currentState;
+                return {
+                    ...merged,
+                    settings: {
+                        ...currentState.settings,
+                        ...persisted?.settings,
+                    },
+                };
+            },
         }
     )
 );

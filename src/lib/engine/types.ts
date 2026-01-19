@@ -12,6 +12,9 @@ export interface Token {
 
 export interface ReadingSettings {
     wpm: number;
+    trainingModeEnabled: boolean;
+    trainingStartWpm: number;
+    trainingEndWpm: number;
     fontSize: number; // in rem or px
     chunkSize: number; // number of words per flash
     orpEnabled: boolean;
