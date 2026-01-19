@@ -710,36 +710,40 @@ body {
         var(--surface-muted) var(--range-end),
         var(--surface-muted) 100%
     );
+    pointer-events: none;
 }
 
-.settings-range-input {
+.settings-range-handle {
     position: absolute;
-    left: 0;
-    right: 0;
     top: 50%;
-    transform: translateY(-50%);
-    width: 100%;
-    background: transparent;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid var(--accent-primary);
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.15),
+        0 4px 8px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border 0.15s ease;
 }
 
-.settings-range-input-start {
-    z-index: 2;
+.settings-range-handle-active {
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.2),
+        0 8px 14px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
-.settings-range-input-end {
-    z-index: 3;
-}
-
-.settings-range-input::-webkit-slider-runnable-track {
-    background: transparent;
-}
-
-.settings-range-input::-moz-range-track {
-    background: transparent;
-}
-
-.settings-range-input::-moz-range-progress {
-    background: transparent;
+.settings-range-handle:focus-visible {
+    outline: none;
+    border-color: var(--accent-strong, var(--accent-primary));
+    box-shadow:
+        0 0 0 3px rgba(59, 130, 246, 0.4),
+        0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
 .settings-slider::-webkit-slider-thumb {

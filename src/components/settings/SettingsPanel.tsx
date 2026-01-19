@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { useReaderStore } from '@/store/useReaderStore';
 
 const JAZZ_STREAM_URL = 'https://jazzfm91.streamb.live/SB00023';
@@ -22,6 +22,8 @@ export const SettingsPanel: React.FC = () => {
     const rangeEndWpm = Math.max(trainingStartWpm, trainingEndWpm);
     const rangeStartPercent = ((rangeStartWpm - WPM_MIN) / (WPM_MAX - WPM_MIN)) * 100;
     const rangeEndPercent = ((rangeEndWpm - WPM_MIN) / (WPM_MAX - WPM_MIN)) * 100;
+    const [activeHandle, setActiveHandle] = useState<'start' | 'end' | null>(null);
+    const rangeRef = useRef<HTMLDivElement>(null);
 
     const themes = [
         { id: 'light', label: 'Light', bg: '#ffffff', text: '#1a1a2e', accent: '#3b82f6' },
@@ -42,6 +44,22 @@ export const SettingsPanel: React.FC = () => {
         const themeId = settings.theme;
         document.documentElement.setAttribute('data-theme', themeId === 'light' ? '' : themeId);
     }, [settings.theme]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        try {
+            const stored = localStorage.getItem('rsvp-reader-storage');
+            if (stored) return;
+        } catch {
+            return;
+        }
+
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (prefersDark) {
+            setSettings({ theme: 'dark' });
+        }
+    }, [setSettings]);
 
     // Update slider fill on mount and value change
     useEffect(() => {
@@ -102,6 +120,91 @@ export const SettingsPanel: React.FC = () => {
         slider.style.setProperty('--slider-fill', `${percent}%`);
     };
 
+    const clampToStep = useCallback((value: number) => {
+        const steps = Math.round(value / WPM_STEP);
+        return Math.min(WPM_MAX, Math.max(WPM_MIN, steps * WPM_STEP));
+    }, [WPM_MAX, WPM_MIN, WPM_STEP]);
+
+    const getWpmFromPointer = useCallback((clientX: number) => {
+        const rect = rangeRef.current?.getBoundingClientRect();
+        if (!rect) return WPM_MIN;
+
+        const ratio = (clientX - rect.left) / rect.width;
+        const rawValue = WPM_MIN + ratio * (WPM_MAX - WPM_MIN);
+        return clampToStep(rawValue);
+    }, [clampToStep, WPM_MAX, WPM_MIN]);
+
+    const applyHandleValue = useCallback(
+        (handle: 'start' | 'end', clientX: number) => {
+            const value = getWpmFromPointer(clientX);
+            if (handle === 'start') {
+                setSettings({ trainingStartWpm: Math.min(value, trainingEndWpm) });
+            } else {
+                setSettings({ trainingEndWpm: Math.max(value, trainingStartWpm) });
+            }
+        },
+        [getWpmFromPointer, setSettings, trainingEndWpm, trainingStartWpm]
+    );
+
+    const handleRangePointerDown = useCallback(
+        (handle: 'start' | 'end') => (event: React.PointerEvent<HTMLButtonElement>) => {
+            event.preventDefault();
+            setActiveHandle(handle);
+            applyHandleValue(handle, event.clientX);
+        },
+        [applyHandleValue]
+    );
+
+    const handleRangeKeyDown = useCallback(
+        (handle: 'start' | 'end') => (event: React.KeyboardEvent<HTMLButtonElement>) => {
+            const stepChange =
+                event.key === 'ArrowRight' || event.key === 'ArrowUp'
+                    ? WPM_STEP
+                    : event.key === 'ArrowLeft' || event.key === 'ArrowDown'
+                        ? -WPM_STEP
+                        : 0;
+            if (stepChange === 0) return;
+
+            event.preventDefault();
+            if (handle === 'start') {
+                const newValue = clampToStep(trainingStartWpm + stepChange);
+                setSettings({ trainingStartWpm: Math.min(newValue, trainingEndWpm) });
+            } else {
+                const newValue = clampToStep(trainingEndWpm + stepChange);
+                setSettings({ trainingEndWpm: Math.max(newValue, trainingStartWpm) });
+            }
+        },
+        [trainingEndWpm, trainingStartWpm, clampToStep, setSettings]
+    );
+
+    const handleRangePointerDownCapture = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+        const target = event.target as HTMLElement;
+        if (!target.classList.contains('settings-range-handle')) {
+            event.preventDefault();
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!activeHandle) return;
+
+        const onPointerMove = (event: PointerEvent) => {
+            event.preventDefault();
+            applyHandleValue(activeHandle, event.clientX);
+        };
+
+        const onPointerUp = () => {
+            setActiveHandle(null);
+        };
+
+        document.addEventListener('pointermove', onPointerMove);
+        document.addEventListener('pointerup', onPointerUp);
+
+        return () => {
+            document.removeEventListener('pointermove', onPointerMove);
+            document.removeEventListener('pointerup', onPointerUp);
+        };
+    }, [activeHandle, applyHandleValue]);
+
     return (
         <div className="settings-container">
             {/* Reading Section */}
@@ -143,51 +246,53 @@ export const SettingsPanel: React.FC = () => {
                         />
                     </div>
                 ) : (
-                    <div className="settings-row">
-                        <div className="settings-row-header">
-                            <span className="settings-label">Training Speed</span>
-                            <span className="settings-value">
-                                {trainingStartWpm} to {trainingEndWpm} <span className="settings-unit">WPM</span>
-                            </span>
-                        </div>
-                        <div
-                            className="settings-range"
-                            style={{
+                <div className="settings-row">
+                    <div className="settings-row-header">
+                        <span className="settings-label">Training Speed</span>
+                        <span className="settings-value">
+                            {trainingStartWpm} to {trainingEndWpm} <span className="settings-unit">WPM</span>
+                        </span>
+                    </div>
+                    <div
+                        className="settings-range"
+                        ref={rangeRef}
+                        onPointerDownCapture={handleRangePointerDownCapture}
+                        style={
+                            {
                                 '--range-start': `${rangeStartPercent}%`,
                                 '--range-end': `${rangeEndPercent}%`,
-                            } as React.CSSProperties}
-                        >
-                            <div className="settings-range-track" />
-                            <input
-                                type="range"
-                                min={WPM_MIN}
-                                max={WPM_MAX}
-                                step={WPM_STEP}
-                                value={trainingStartWpm}
-                                onChange={(e) =>
-                                    handleSliderChange(e, (v) =>
-                                        setSettings({ trainingStartWpm: Math.min(v, trainingEndWpm) })
-                                    )
-                                }
-                                className="settings-slider settings-range-input settings-range-input-start"
-                                aria-label="Training start speed"
-                            />
-                            <input
-                                type="range"
-                                min={WPM_MIN}
-                                max={WPM_MAX}
-                                step={WPM_STEP}
-                                value={trainingEndWpm}
-                                onChange={(e) =>
-                                    handleSliderChange(e, (v) =>
-                                        setSettings({ trainingEndWpm: Math.max(v, trainingStartWpm) })
-                                    )
-                                }
-                                className="settings-slider settings-range-input settings-range-input-end"
-                                aria-label="Training end speed"
-                            />
-                        </div>
+                            } as React.CSSProperties
+                        }
+                    >
+                        <div className="settings-range-track" />
+                        <button
+                            type="button"
+                            className={`settings-range-handle ${activeHandle === 'start' ? 'settings-range-handle-active' : ''}`}
+                            role="slider"
+                            aria-label="Training start speed"
+                            aria-valuemin={WPM_MIN}
+                            aria-valuemax={WPM_MAX}
+                            aria-valuenow={trainingStartWpm}
+                            onPointerDown={handleRangePointerDown('start')}
+                            onKeyDown={handleRangeKeyDown('start')}
+                            style={{ left: `${rangeStartPercent}%` }}
+                            tabIndex={0}
+                        />
+                        <button
+                            type="button"
+                            className={`settings-range-handle ${activeHandle === 'end' ? 'settings-range-handle-active' : ''}`}
+                            role="slider"
+                            aria-label="Training end speed"
+                            aria-valuemin={WPM_MIN}
+                            aria-valuemax={WPM_MAX}
+                            aria-valuenow={trainingEndWpm}
+                            onPointerDown={handleRangePointerDown('end')}
+                            onKeyDown={handleRangeKeyDown('end')}
+                            style={{ left: `${rangeEndPercent}%` }}
+                            tabIndex={0}
+                        />
                     </div>
+                </div>
                 )}
 
                 {/* Punctuation Pause */}
@@ -258,8 +363,8 @@ export const SettingsPanel: React.FC = () => {
                         ref={fontSizeRef}
                         type="range"
                         min="1"
-                        max="5"
-                        step="0.5"
+                        max="3"
+                        step="0.25"
                         value={settings.fontSize}
                         onChange={(e) => handleSliderChange(e, (v) => setSettings({ fontSize: v }), true)}
                         className="settings-slider"
@@ -279,9 +384,9 @@ export const SettingsPanel: React.FC = () => {
                     </button>
                 </div>
 
-                {/* Background Music */}
+                {/* Jazz */}
                 <div className="settings-row-inline">
-                    <span className="settings-label">Background Music</span>
+                    <span className="settings-label">Jazz</span>
                     <button
                         onClick={handleMusicToggle}
                         className={`settings-toggle ${settings.musicEnabled ? 'settings-toggle-on' : ''}`}

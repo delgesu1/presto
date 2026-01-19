@@ -70,12 +70,18 @@ const themeScript = `
 (function() {
   try {
     var stored = localStorage.getItem('rsvp-reader-storage');
+    var theme = null;
     if (stored) {
       var data = JSON.parse(stored);
-      var theme = data.state && data.state.settings && data.state.settings.theme;
-      if (theme && theme !== 'light') {
-        document.documentElement.setAttribute('data-theme', theme);
-      }
+      theme = data && data.state && data.state.settings && data.state.settings.theme;
+    }
+    if (!theme) {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    if (theme && theme !== 'light') {
+      document.documentElement.setAttribute('data-theme', theme);
+    } else {
+      document.documentElement.removeAttribute('data-theme');
     }
   } catch (e) {}
 })();

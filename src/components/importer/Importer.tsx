@@ -5,10 +5,12 @@ import { useReaderStore } from '@/store/useReaderStore';
 import { demoTexts } from '@/lib/demoTexts';
 
 export const Importer: React.FC = () => {
-    const { setRawText, rawText, reset, tokens } = useReaderStore();
+    const { setRawText, rawText, reset, tokens, currentIndex, isPlaying } = useReaderStore();
     const [input, setInput] = useState(rawText || '');
 
     const hasContent = tokens.length > 0;
+    const hasStarted = currentIndex > 0 || isPlaying;
+    const buttonLabel = hasStarted ? 'Update' : 'Start Reading';
 
     useEffect(() => {
         if (rawText) {

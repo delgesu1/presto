@@ -3,6 +3,24 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { Token, ReadingSettings } from '@/lib/engine/types';
 import { Tokenizer } from '@/lib/engine/tokenizer';
 import { Scheduler } from '@/lib/engine/scheduler';
+import { demoTexts } from '@/lib/demoTexts';
+
+const DEFAULT_SETTINGS: ReadingSettings = {
+    wpm: 300,
+    trainingModeEnabled: false,
+    trainingStartWpm: 300,
+    trainingEndWpm: 600,
+    fontSize: 2, // rem
+    chunkSize: 1,
+    orpEnabled: true,
+    punctuationSlowdown: 100, // ms
+    serifFont: true,
+    musicEnabled: false,
+    theme: 'light',
+};
+const DEFAULT_TEXT = demoTexts[0];
+const DEFAULT_TOKENS = Tokenizer.tokenize(DEFAULT_TEXT);
+const DEFAULT_TIMINGS = Scheduler.schedule(DEFAULT_TOKENS, DEFAULT_SETTINGS);
 
 interface ReaderState {
     // Data
@@ -30,23 +48,13 @@ interface ReaderState {
 export const useReaderStore = create<ReaderState>()(
     persist(
         (set, get) => ({
-            rawText: '',
-            tokens: [],
-            timings: [],
+            rawText: DEFAULT_TEXT,
+            tokens: DEFAULT_TOKENS,
+            timings: DEFAULT_TIMINGS,
             isPlaying: false,
             currentIndex: 0,
             settings: {
-                wpm: 300,
-                trainingModeEnabled: false,
-                trainingStartWpm: 300,
-                trainingEndWpm: 600,
-                fontSize: 2, // rem
-                chunkSize: 1,
-                orpEnabled: true,
-                punctuationSlowdown: 50, // ms
-                serifFont: false,
-                musicEnabled: false,
-                theme: 'light',
+                ...DEFAULT_SETTINGS,
             },
 
             setRawText: (text: string) => {
