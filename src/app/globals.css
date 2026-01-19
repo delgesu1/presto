@@ -229,6 +229,28 @@ body {
     }
 }
 
+/* ========== Page Sections ========== */
+
+.section-reader {
+    max-width: 640px;
+    margin: 0 auto 2rem;
+}
+
+.section-importer {
+    max-width: 640px;
+    margin: 0 auto 2.5rem;
+}
+
+@media (min-width: 640px) {
+    .section-reader {
+        margin-bottom: 3.5rem;
+    }
+
+    .section-importer {
+        margin-bottom: 4rem;
+    }
+}
+
 /* ========== Buttons ========== */
 
 .btn-primary {

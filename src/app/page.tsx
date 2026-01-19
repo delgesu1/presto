@@ -28,7 +28,7 @@ export default function Home() {
                 </header>
 
                 {/* Reader Display */}
-                <section className="max-w-[640px] mx-auto" style={{ marginBottom: '3.5rem' }}>
+                <section className="section-reader">
                     <div className="reader-card">
                         <ORPDisplay />
                         <ProgressBar />
@@ -41,7 +41,7 @@ export default function Home() {
                 </section>
 
                 {/* Text Input */}
-                <section className="max-w-[640px] mx-auto" style={{ marginBottom: '4rem' }}>
+                <section className="section-importer">
                     <Importer />
                 </section>
 

@@ -5,8 +5,8 @@ import { useReaderStore } from '@/store/useReaderStore';
 import type { MusicType } from '@/lib/engine/types';
 
 const MUSIC_STREAMS: Record<Exclude<MusicType, 'none'>, string> = {
-    jazz: 'https://jazzfm91.streamb.live/SB00023',
-    baroque: 'http://mediaserv73.live-streams.nl:8058/stream',
+    jazz: 'https://streams.greenhost.nl:8006/hardbop',
+    baroque: 'https://streams.greenhost.nl:8006/barok',
 };
 
 const CROSSFADE_DURATION = 500; // ms
