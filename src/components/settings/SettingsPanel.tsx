@@ -6,7 +6,7 @@ import type { MusicType } from '@/lib/engine/types';
 
 const MUSIC_STREAMS: Record<Exclude<MusicType, 'none'>, string> = {
     jazz: 'https://jazzfm91.streamb.live/SB00023',
-    baroque: 'http://strm112.1.fm/baroque_mobile_mp3',
+    baroque: 'http://mediaserv73.live-streams.nl:8058/stream',
 };
 
 const CROSSFADE_DURATION = 500; // ms
