@@ -10,6 +10,7 @@
     --text-secondary: #6b7280;
     --accent-primary: #3b82f6;
     --accent-secondary: #60a5fa;
+    --accent-contrast: #ffffff;
     --accent-soft: rgba(59, 130, 246, 0.1);
     --orp-highlight: #ef4444;
     --border-subtle: rgba(0, 0, 0, 0.08);
@@ -23,6 +24,7 @@
     --text-secondary: #9ca3af;
     --accent-primary: #60a5fa;
     --accent-secondary: #93c5fd;
+    --accent-contrast: #0f0f14;
     --accent-soft: rgba(96, 165, 250, 0.15);
     --orp-highlight: #f87171;
     --border-subtle: rgba(255, 255, 255, 0.1);
@@ -36,6 +38,7 @@
     --text-secondary: #8a7d6b;
     --accent-primary: #b8860b;
     --accent-secondary: #daa520;
+    --accent-contrast: #ffffff;
     --accent-soft: rgba(184, 134, 11, 0.12);
     --orp-highlight: #c45a3b;
     --border-subtle: rgba(61, 53, 39, 0.1);
@@ -49,6 +52,7 @@
     --text-secondary: #166534;
     --accent-primary: #22c55e;
     --accent-secondary: #4ade80;
+    --accent-contrast: #0a0a0a;
     --accent-soft: rgba(34, 197, 94, 0.15);
     --orp-highlight: #ffffff;
     --border-subtle: rgba(34, 197, 94, 0.2);
@@ -62,6 +66,7 @@
     --text-secondary: #9d7a85;
     --accent-primary: #e11d48;
     --accent-secondary: #fb7185;
+    --accent-contrast: #ffffff;
     --accent-soft: rgba(225, 29, 72, 0.1);
     --orp-highlight: #be123c;
     --border-subtle: rgba(74, 44, 53, 0.1);
@@ -75,6 +80,7 @@
     --text-secondary: #94a3b8;
     --accent-primary: #f59e0b;
     --accent-secondary: #fbbf24;
+    --accent-contrast: #0f172a;
     --accent-soft: rgba(245, 158, 11, 0.15);
     --orp-highlight: #fbbf24;
     --border-subtle: rgba(148, 163, 184, 0.15);
@@ -88,6 +94,7 @@
     --text-secondary: #7c6c9a;
     --accent-primary: #7c3aed;
     --accent-secondary: #a78bfa;
+    --accent-contrast: #ffffff;
     --accent-soft: rgba(124, 58, 237, 0.1);
     --orp-highlight: #6d28d9;
     --border-subtle: rgba(59, 46, 90, 0.1);
@@ -101,6 +108,7 @@
     --text-secondary: #7b93b3;
     --accent-primary: #06b6d4;
     --accent-secondary: #22d3ee;
+    --accent-contrast: #0c1222;
     --accent-soft: rgba(6, 182, 212, 0.15);
     --orp-highlight: #22d3ee;
     --border-subtle: rgba(123, 147, 179, 0.15);
@@ -114,6 +122,7 @@
     --text-secondary: #78716c;
     --accent-primary: #c2850a;
     --accent-secondary: #d4a426;
+    --accent-contrast: #ffffff;
     --accent-soft: rgba(194, 133, 10, 0.1);
     --orp-highlight: #a16207;
     --border-subtle: rgba(68, 64, 60, 0.1);
@@ -127,6 +136,7 @@
     --text-secondary: #7fa88a;
     --accent-primary: #10b981;
     --accent-secondary: #34d399;
+    --accent-contrast: #0f1a14;
     --accent-soft: rgba(16, 185, 129, 0.15);
     --orp-highlight: #34d399;
     --border-subtle: rgba(127, 168, 138, 0.15);
@@ -140,6 +150,7 @@
     --text-secondary: #a1a1aa;
     --accent-primary: #ffffff;
     --accent-secondary: #e4e4e7;
+    --accent-contrast: #18181b;
     --accent-soft: rgba(255, 255, 255, 0.1);
     --orp-highlight: #ffffff;
     --border-subtle: rgba(255, 255, 255, 0.1);
@@ -153,6 +164,7 @@
     --text-secondary: #00b330;
     --accent-primary: #00ff41;
     --accent-secondary: #39ff14;
+    --accent-contrast: #000000;
     --accent-soft: rgba(0, 255, 65, 0.12);
     --orp-highlight: #ffffff;
     --border-subtle: rgba(0, 255, 65, 0.2);
@@ -249,6 +261,16 @@ body {
     .section-importer {
         margin-bottom: 4rem;
     }
+}
+
+/* ========== Footer ========== */
+
+.app-footer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    opacity: 0.6;
+    padding: 2rem 0 1rem;
 }
 
 /* ========== Buttons ========== */
@@ -391,7 +413,7 @@ body {
     width: 3rem;
     height: 3rem;
     background: var(--accent-primary);
-    color: white;
+    color: var(--accent-contrast);
     border-radius: 50%;
     box-shadow: 0 2px 8px var(--accent-soft);
 }
@@ -399,7 +421,7 @@ body {
 .btn-player-main:hover {
     background: var(--accent-primary);
     filter: brightness(1.1);
-    color: white;
+    color: var(--accent-contrast);
     transform: scale(1.05);
     box-shadow: 0 4px 16px var(--accent-soft);
 }
@@ -1343,8 +1365,6 @@ body {
 /* === BUTTONS === */
 
 [data-theme='neo'] .btn-player-main {
-    background: #00ff41;
-    color: #000000;
     position: relative;
     transition: all 0.15s ease;
 }
@@ -1353,7 +1373,7 @@ body {
     content: '';
     position: absolute;
     inset: -2px;
-    background: #00ff41;
+    background: var(--accent-primary);
     border-radius: inherit;
     opacity: 0;
     filter: blur(8px);
@@ -1363,11 +1383,6 @@ body {
 
 [data-theme='neo'] .btn-player-main:hover::before {
     opacity: 0.4;
-}
-
-[data-theme='neo'] .btn-player-main:hover {
-    background: #00ff41;
-    transform: scale(1.05);
 }
 
 /* Primary buttons with glitch hover */

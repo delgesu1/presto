@@ -49,6 +49,11 @@ export default function Home() {
                 <section className="max-w-[520px] mx-auto" style={{ paddingBottom: '3rem' }}>
                     <SettingsPanel />
                 </section>
+
+                {/* Footer */}
+                <footer className="app-footer">
+                    Created by Daniel Kurganov
+                </footer>
             </div>
 
             <ReaderEngine />
