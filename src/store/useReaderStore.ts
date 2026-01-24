@@ -16,7 +16,7 @@ const DEFAULT_SETTINGS: ReadingSettings = {
     punctuationSlowdown: 100, // ms
     serifFont: true,
     musicType: 'none',
-    theme: 'light',
+    theme: 'midnight',
 };
 const DEFAULT_TEXT = demoTexts[0];
 const DEFAULT_TOKENS = Tokenizer.tokenize(DEFAULT_TEXT);

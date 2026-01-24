@@ -63,10 +63,7 @@ export const SettingsPanel: React.FC = () => {
             return;
         }
 
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (prefersDark) {
-            setSettings({ theme: 'dark' });
-        }
+        setSettings({ theme: 'midnight' });
     }, [setSettings]);
 
     // Update slider fill on mount and value change

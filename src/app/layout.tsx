@@ -76,7 +76,7 @@ const themeScript = `
       theme = data && data.state && data.state.settings && data.state.settings.theme;
     }
     if (!theme) {
-      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      theme = 'midnight';
     }
     if (theme && theme !== 'light') {
       document.documentElement.setAttribute('data-theme', theme);
