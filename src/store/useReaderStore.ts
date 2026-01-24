@@ -9,7 +9,7 @@ const DEFAULT_SETTINGS: ReadingSettings = {
     wpm: 300,
     trainingModeEnabled: true,
     trainingStartWpm: 150,
-    trainingEndWpm: 1000,
+    trainingEndWpm: 900,
     fontSize: 2, // rem
     chunkSize: 1,
     orpEnabled: true,
